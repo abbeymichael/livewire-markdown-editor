@@ -149,7 +149,10 @@ final class MarkdownEditor extends Component
             }
 
             $filesystem = Storage::disk($disk);
-            $url        = $filesystem->url($storedPath);
+           $driver = config("filesystems.disks.{$disk}.driver");
+           $url = in_array($driver, ['s3', 'gcs', 'r2'], true)
+           ? $filesystem->url($storedPath)  // cloud: needs full URL
+           : Storage::url($storedPath);     // local: relative is fine
             $filename   = $this->sanitizeFilename($attachment->getClientOriginalName());
 
             // Determine whether to render as an image using the file extension
