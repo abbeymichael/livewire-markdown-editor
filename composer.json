@@ -1,17 +1,19 @@
 {
-  "name": "mckenziearts/livewire-markdown-editor",
-  "description": "GitHub-style markdown editor for Laravel with Livewire and Alpine.js",
+  "name": "abbeymichael/livewire-markdown-editor",
+  "description": "GitHub-style markdown editor for Laravel with Livewire and Alpine.js, with public file upload support",
   "type": "library",
   "license": "MIT",
   "keywords": [
     "Laravel",
     "livewire",
-    "markdown"
+    "markdown",
+    "editor",
+    "file-upload"
   ],
   "authors": [
     {
-      "name": "Arthur Monney",
-      "email": "monneylobe@gmail.com",
+      "name": "Abbey Michael",
+      "email": "your@email.com",
       "role": "Developer"
     }
   ],
@@ -35,7 +37,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Mckenziearts\\LivewireMarkdownEditor\\": "src/"
+      "Abbeymichael\\LivewireMarkdownEditor\\": "src/"
     }
   },
   "autoload-dev": {
@@ -55,7 +57,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Mckenziearts\\LivewireMarkdownEditor\\LivewireMarkdownEditorServiceProvider"
+        "Abbeymichael\\LivewireMarkdownEditor\\LivewireMarkdownEditorServiceProvider"
       ]
     }
   },

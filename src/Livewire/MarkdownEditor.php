@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Mckenziearts\LivewireMarkdownEditor\Livewire;
+namespace Abbeymichael\LivewireMarkdownEditor\Livewire;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Storage;
