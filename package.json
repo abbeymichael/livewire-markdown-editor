@@ -4,7 +4,7 @@
   "type": "module",
   "dependencies": {
     "@github/markdown-toolbar-element": "^2.2.3",
-    "@github/text-expander-element": "^2.7.1",
+    "@github/text-expander-element": "^2.9.4",
     "shiki": "^3.21.0"
   }
 }
