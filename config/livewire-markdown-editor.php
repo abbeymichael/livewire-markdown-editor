@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'disk' => env('MARKDOWN_EDITOR_FILESYSTEM_DISK', 'local'),
+    'disk' => env('MARKDOWN_EDITOR_FILESYSTEM_DISK', 'public'),
 
     /*
     |--------------------------------------------------------------------------
