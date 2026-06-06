@@ -5,10 +5,10 @@
 </p>
 
 <p>
-    <a href="https://github.com/mckenziearts/livewire-markdown-editor/actions"><img src="https://github.com/mckenziearts/livewire-markdown-editor/actions/workflows/ci.yml/badge.svg" alt="Build Status"></a>
-    <a href="https://packagist.org/packages/mckenziearts/livewire-markdown-editor"><img src="https://img.shields.io/packagist/dt/mckenziearts/livewire-markdown-editor" alt="Total Downloads"></a>
-    <a href="https://packagist.org/packages/mckenziearts/livewire-markdown-editor"><img src="https://img.shields.io/packagist/v/mckenziearts/livewire-markdown-editor" alt="Latest Stable Version"></a>
-    <a href="https://packagist.org/packages/mckenziearts/livewire-markdown-editor"><img src="https://img.shields.io/packagist/l/mckenziearts/livewire-markdown-editor" alt="License"></a>
+    <a href="https://github.com/abbeymichael/livewire-markdown-editor/actions"><img src="https://github.com/abbeymichael/livewire-markdown-editor/actions/workflows/ci.yml/badge.svg" alt="Build Status"></a>
+    <a href="https://packagist.org/packages/abbeymichael/livewire-markdown-editor"><img src="https://img.shields.io/packagist/dt/abbeymichael/livewire-markdown-editor" alt="Total Downloads"></a>
+    <a href="https://packagist.org/packages/abbeymichael/livewire-markdown-editor"><img src="https://img.shields.io/packagist/v/abbeymichael/livewire-markdown-editor" alt="Latest Stable Version"></a>
+    <a href="https://packagist.org/packages/abbeymichael/livewire-markdown-editor"><img src="https://img.shields.io/packagist/l/abbeymichael/livewire-markdown-editor" alt="License"></a>
 </p>
 
 GitHub-style Markdown editor for Laravel with Livewire and Alpine.js. This module provides a complete, standalone Markdown editing experience with full dark mode support.
@@ -36,13 +36,13 @@ GitHub-style Markdown editor for Laravel with Livewire and Alpine.js. This modul
 
 ## Installation
 
-Livewire Markdown editor can be installed via composer from your project root:
+Install via Composer:
 
 ```bash
-composer require mckenziearts/livewire-markdown-editor
+composer require abbeymichael/livewire-markdown-editor
 ```
 
-Include the Markdown formatting buttons for text inputs Editor into your project:
+Install the required JS dependencies:
 
 ```bash
 npm install --save @github/markdown-toolbar-element @github/text-expander-element
@@ -50,16 +50,16 @@ npm install --save @github/markdown-toolbar-element @github/text-expander-elemen
 
 ### 2. Load assets
 
-Add the module's JavaScript to your main `resources/js/app.js`:
+Add the module's JavaScript to your `resources/js/app.js`:
 
 ```js
-import '../../vendor/mckenziearts/livewire-markdown-editor/resources/js/markdown-editor.js';
+import '../../vendor/abbeymichael/livewire-markdown-editor/resources/js/markdown-editor.js';
 ```
 
-And the CSS file to your main `resources/css/app.css`:
+And the CSS to your `resources/css/app.css`:
 
 ```css
-@import "../../vendor/mckenziearts/livewire-markdown-editor/resources/css/markdown-editor.css";
+@import "../../vendor/abbeymichael/livewire-markdown-editor/resources/css/markdown-editor.css";
 ```
 
 Then build:
@@ -120,7 +120,6 @@ class CreatePost extends Component
 ```blade
 <div>
     <livewire:markdown-editor wire:model="content" />
-
     <button wire:click="save">Save</button>
 </div>
 ```
@@ -136,6 +135,91 @@ class CreatePost extends Component
 | `showToolbar` | bool   | `true`                 | Show/hide the markdown toolbar               |
 | `showUpload`  | bool   | `true`                 | Show/hide the file upload button             |
 
+## Configuration
+
+You can configure the editor without publishing the config file by setting environment variables in your `.env`:
+
+```env
+# Storage disk to use (must be defined in config/filesystems.php)
+MARKDOWN_EDITOR_FILESYSTEM_DISK=public
+
+# Shiki syntax highlighting theme
+# Options: github-dark, github-light, monokai, nord, one-dark-pro, dracula
+# Full list: https://github.com/shikijs/textmate-grammars-themes/tree/main/packages/tm-themes
+MARKDOWN_EDITOR_THEME=github-light
+
+# File upload visibility: 'public' or 'private'
+# Set to 'public' so uploaded images are accessible via URL in rendered markdown.
+# Set to 'private' if you want to restrict access and serve signed/temporary URLs yourself.
+MARKDOWN_EDITOR_UPLOAD_VISIBILITY=public
+```
+
+If you need deeper customization, publish the full config file:
+
+```bash
+php artisan vendor:publish --tag=livewire-markdown-editor-config
+```
+
+This creates `config/livewire-markdown-editor.php`:
+
+```php
+return [
+    'disk'  => env('MARKDOWN_EDITOR_FILESYSTEM_DISK', 'local'),
+    'theme' => env('MARKDOWN_EDITOR_THEME', 'github-light'),
+
+    'upload' => [
+        'max_size'           => 4096, // kilobytes
+        'allowed_extensions' => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'],
+        'images_only'        => true,
+        'visibility'         => env('MARKDOWN_EDITOR_UPLOAD_VISIBILITY', 'public'),
+    ],
+];
+```
+
+## File Uploads
+
+Files are automatically uploaded to the configured disk when selected. Images are inserted as `![filename](url)` and other files as `[filename](url)`.
+
+Make sure your storage symlink is set up:
+
+```bash
+php artisan storage:link
+```
+
+### Visibility
+
+By default uploaded files are stored as `public` so they are accessible via URL in rendered markdown. You can switch to `private` storage via your `.env` if you want to restrict access and generate signed or temporary URLs yourself:
+
+```env
+MARKDOWN_EDITOR_UPLOAD_VISIBILITY=private
+```
+
+### Security
+
+To prevent arbitrary file upload vulnerabilities (stored XSS, phishing page hosting, malware distribution), only images are accepted by default. Uploaded files are stored under a randomly generated filename with the validated extension, and the original client-provided filename is sanitized before being inserted into the markdown output.
+
+You can allow non-image files by updating your config:
+
+```php
+'upload' => [
+    'max_size'           => 4096,
+    'allowed_extensions' => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'pdf', 'zip'],
+    'images_only'        => false,
+    'visibility'         => env('MARKDOWN_EDITOR_UPLOAD_VISIBILITY', 'public'),
+],
+```
+
+> When using a public cloud disk (S3, Spaces, R2, Scaleway), review your bucket policy to ensure non-whitelisted Content-Types cannot be served inline.
+
+To disable file uploads entirely:
+
+```blade
+<livewire:markdown-editor
+    wire:model="content"
+    :show-upload="false"
+/>
+```
+
 ## Toolbar Features
 
 - **Heading** - Insert heading
@@ -148,42 +232,6 @@ class CreatePost extends Component
 - **Ordered List** - Insert numbered list
 - **Task List** - Insert checklist
 - **File Upload** - Upload and insert files/images
-
-## File Uploads
-
-Files are automatically uploaded to the configured disk when selected. Images are inserted as `![filename](url)` and other files as `[filename](url)`.
-
-Make sure your storage is properly configured:
-
-```bash
-php artisan storage:link
-```
-
-### Security
-
-To prevent arbitrary file upload vulnerabilities (stored XSS, phishing page hosting, malware distribution), only images are accepted by default. Uploaded files are stored under a randomly generated filename with the validated extension, and the original client-provided filename is sanitized before being inserted into the markdown output.
-
-You can customize the allowed file types and max size via the `upload` config key:
-
-```php
-// config/livewire-markdown-editor.php
-'upload' => [
-    'max_size' => 4096, // kilobytes
-    'allowed_extensions' => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'],
-    'images_only' => true,
-],
-```
-
-If you need to allow non-image files, extend `allowed_extensions` and set `images_only` to `false`. When using a public cloud disk (S3, Spaces, R2, Scaleway), review the bucket policy to ensure non-whitelisted Content-Types cannot be served inline.
-
-If you do not use file uploads at all, disable the feature entirely:
-
-```blade
-<livewire:markdown-editor
-    wire:model="content"
-    :show-upload="false"
-/>
-```
 
 ## Markdown Support
 
@@ -210,12 +258,6 @@ php artisan vendor:publish --tag=livewire-markdown-editor-views
 ```
 
 Views will be published to `resources/views/vendor/livewire-markdown-editor/`.
-
-### Publishing Assets
-
-```bash
-php artisan vendor:publish --tag=livewire-markdown-editor-assets
-```
 
 ## License
 
