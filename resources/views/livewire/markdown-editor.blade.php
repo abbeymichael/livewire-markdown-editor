@@ -1,6 +1,16 @@
 <div class="w-full">
     <div
-        x-data="{ preview: false }"
+        x-data="{
+            preview: false,
+            cursorPos: 0,
+            saveCursor() {
+                const ta = document.getElementById('markdown-textarea-{{ $this->getId() }}');
+                if (ta) {
+                    this.cursorPos = ta.selectionStart ?? 0;
+                    $wire.cursorPosition = this.cursorPos;
+                }
+            }
+        }"
         class="ring-1 ring-zinc-200 rounded-lg overflow-hidden dark:ring-white/20"
     >
         <div class="flex gap-4 border-b border-zinc-200 bg-zinc-50 dark:bg-white/6 dark:border-white/10">
@@ -103,8 +113,24 @@
                                     : collect($uploadConfig['allowed_extensions'])->map(fn ($ext) => '.'.$ext)->implode(',');
                             @endphp
 
-                            <label class="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 cursor-pointer text-zinc-700 dark:text-zinc-300" title="{{ __('livewire-markdown-editor::editor.toolbars.attach_files') }}">
-                                <input type="file" wire:model="attachments" multiple accept="{{ $acceptAttribute }}" class="hidden">
+                            {{--
+                                saveCursor() is called on the label's mousedown/touchstart so that
+                                the cursor position is captured BEFORE the browser opens the file
+                                picker (at which point focus leaves the textarea).
+                            --}}
+                            <label
+                                class="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 cursor-pointer text-zinc-700 dark:text-zinc-300"
+                                title="{{ __('livewire-markdown-editor::editor.toolbars.attach_files') }}"
+                                @mousedown="saveCursor()"
+                                @touchstart="saveCursor()"
+                            >
+                                <input
+                                    type="file"
+                                    wire:model="attachments"
+                                    multiple
+                                    accept="{{ $acceptAttribute }}"
+                                    class="hidden"
+                                >
                                 <x-phosphor-images-duotone class="size-5" aria-hidden="true" />
                             </label>
                         @endif
@@ -143,6 +169,8 @@
             @endif
         </div>
     </div>
+
+    <!-- Footer row -->
     <div class="mt-2 flex items-center justify-between">
         <a href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax" target="_blank" class="inline-flex items-center px-2 py-0.5 gap-1.5 bg-zinc-100 hover:bg-zinc-200/70 rounded text-zinc-700 dark:text-zinc-300 dark:bg-white/10 dark:hover:bg-white/20">
             <x-phosphor-markdown-logo-duotone class="size-5" aria-hidden="true" />
@@ -152,6 +180,7 @@
         </a>
 
         @if ($showUpload)
+            <!-- Uploading spinner -->
             <div wire:loading.flex wire:target="attachments" class="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                 <svg
                     class="animate-spin size-4 text-primary-600"
@@ -167,6 +196,36 @@
                 </svg>
                 {{ __('livewire-markdown-editor::editor.uploading') }}
             </div>
+
+            <!-- Upload success message -->
+            @if (! empty($uploadMessages))
+                <div wire:loading.remove wire:target="attachments" class="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                    <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {{ $uploadMessages[0] }}
+                </div>
+            @endif
+
+            <!-- Upload error messages -->
+            @if (! empty($uploadErrors))
+                <div wire:loading.remove wire:target="attachments" class="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400">
+                    <svg class="size-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                    </svg>
+                    {{ $uploadErrors[0] }}
+                </div>
+            @endif
+
+            <!-- Livewire validation errors for attachments -->
+            @error('attachments.*')
+                <div class="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400">
+                    <svg class="size-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                    </svg>
+                    {{ $message }}
+                </div>
+            @enderror
         @endif
     </div>
 </div>

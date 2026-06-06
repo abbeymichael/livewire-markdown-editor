@@ -5,6 +5,8 @@ declare(strict_types=1);
 return [
     'styling' => 'Styling with Markdown is supported',
     'uploading' => 'Uploading...',
+    'upload_success' => 'File uploaded successfully.',
+    'upload_error_type' => 'This file type is not allowed. Allowed types: :extensions.',
     'write' => 'Write',
     'preview' => 'Preview',
     'empty_preview' => 'Nothing to preview',

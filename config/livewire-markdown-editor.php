@@ -44,5 +44,20 @@ return [
         'max_size' => 4096,
         'allowed_extensions' => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'],
         'images_only' => true,
+
+        /*
+        |--------------------------------------------------------------------------
+        | File Visibility
+        |--------------------------------------------------------------------------
+        |
+        | Controls whether uploaded files are stored as 'public' or 'private'.
+        | Set to 'public' so that uploaded images are accessible via a URL in
+        | the rendered markdown. Set to 'private' if you want to restrict access
+        | and generate signed/temporary URLs yourself.
+        |
+        | Accepted values: 'public' | 'private'
+        |
+        */
+        'visibility' => env('MARKDOWN_EDITOR_UPLOAD_VISIBILITY', 'public'),
     ],
 ];
